@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Signal
 
-## Getting Started
+A campaign planning and measurement web app for early-stage startup marketers. HCI Final Project, University of Birmingham Dubai.
 
-First, run the development server:
+> Live: _to be added after Phase 11 deploy._
+
+## Stack
+
+- Next.js 16 (App Router) on the Turbopack default
+- TypeScript strict
+- Tailwind CSS v4 with `@theme` tokens
+- shadcn/ui primitives (Slate base) + custom Signal theme
+- Framer Motion for transitions
+- Recharts for line / bar charts
+- `@anthropic-ai/sdk` for the `/copy` Message Clarity check
+- Geist Sans / Mono + Instrument Serif
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.local.example .env.local
+# add your ANTHROPIC_API_KEY to .env.local
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The `/copy` route requires `ANTHROPIC_API_KEY` to be set. Without it the route returns a 500 with a friendly message.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm build
+pnpm lint
+```
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Purpose |
+|---|---|
+| `/` | redirect → `/dashboard` |
+| `/dashboard` | Hero — unified cross-channel dashboard |
+| `/brief` | 4-step progressive form |
+| `/channels` | Channel mix with rationale and live rebalance |
+| `/channels/[id]` | Per-channel deep-dive with recommendation |
+| `/budget` | Single budget reallocation with evidence |
+| `/copy` | Message clarity check — real Anthropic API |
+| `/flow` | User flow diagram, first-class screen |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Vercel project. Set `ANTHROPIC_API_KEY` in both Preview and Production environments before the first deploy.
 
-## Deploy on Vercel
+## Design invariants
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `CLAUDE.md` at repo root.
