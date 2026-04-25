@@ -7,7 +7,6 @@ import {
   Search,
   Users,
   Newspaper,
-  ExternalLink,
   TrendingDown,
   Target as TargetIcon,
   Sparkles,
@@ -23,6 +22,8 @@ import {
   formatNumber,
 } from "@/lib/mock-data";
 import { DeepDiveCharts } from "@/components/dashboard/deep-dive-charts";
+import { PlatformLinkButton } from "@/components/channels/platform-link-button";
+import { RecommendationPanel } from "@/components/channels/recommendation-panel";
 
 const iconMap: Record<string, LucideIcon> = {
   Briefcase,
@@ -59,7 +60,7 @@ export default async function ChannelDeepDivePage({
           Dashboard
         </Link>
         <ChevronRight size={12} aria-hidden />
-        <Link href="/dashboard" className="hover:text-[var(--color-ink-1)]">
+        <Link href="/channels" className="hover:text-[var(--color-ink-1)]">
           Channels
         </Link>
         <ChevronRight size={12} aria-hidden />
@@ -112,13 +113,9 @@ export default async function ChannelDeepDivePage({
             </div>
           </div>
         </div>
-        <button
-          type="button"
-          className="h-9 px-3.5 rounded-md border border-[var(--color-border)] text-[13px] font-medium text-[var(--color-ink-1)] hover:bg-[var(--color-bg)] inline-flex items-center gap-1.5"
-        >
-          View in {channel.type === "physical" ? "venue brief" : "platform"}
-          <ExternalLink size={12} aria-hidden />
-        </button>
+        <PlatformLinkButton
+          label={`View in ${channel.type === "physical" ? "venue brief" : "platform"}`}
+        />
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -198,48 +195,31 @@ export default async function ChannelDeepDivePage({
 
       <DeepDiveCharts channel={channel} targetCps={targetCps} />
 
-      <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] p-6 lg:p-8">
-        <span className="text-[11px] uppercase tracking-[0.08em] font-mono text-[var(--color-ink-3)]">
-          Recommendation
-        </span>
-        <h2 className="text-[20px] font-semibold tracking-[-0.01em] mt-1 text-[var(--color-ink-900)] leading-snug max-w-prose">
-          {recommendationFor(channel.id)}
-        </h2>
-
-        <ul className="mt-5 space-y-3 max-w-prose">
-          {evidenceFor(channel).map(({ Icon: EI, headline, body }) => (
-            <li key={headline} className="flex items-start gap-3">
-              <span
-                className="size-7 rounded-md grid place-items-center bg-[var(--color-bg)] shrink-0 text-[var(--color-ink-1)]"
-                aria-hidden
-              >
-                <EI size={14} strokeWidth={1.6} />
-              </span>
-              <div>
-                <div className="text-[14px] font-medium text-[var(--color-ink-1)]">
-                  {headline}
+      <RecommendationPanel
+        channelId={channel.id}
+        title={recommendationFor(channel.id)}
+        reviewHref={`/budget?source=${channel.id}&dest=podcast-sponsorship&amount=1800`}
+        evidence={
+          <ul className="mt-5 space-y-3 max-w-prose">
+            {evidenceFor(channel).map(({ Icon: EI, headline, body }) => (
+              <li key={headline} className="flex items-start gap-3">
+                <span
+                  className="size-7 rounded-md grid place-items-center bg-[var(--color-bg)] shrink-0 text-[var(--color-ink-1)]"
+                  aria-hidden
+                >
+                  <EI size={14} strokeWidth={1.6} />
+                </span>
+                <div>
+                  <div className="text-[14px] font-medium text-[var(--color-ink-1)]">
+                    {headline}
+                  </div>
+                  <p className="text-[13px] text-[var(--color-ink-2)]">{body}</p>
                 </div>
-                <p className="text-[13px] text-[var(--color-ink-2)]">{body}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href={`/budget?source=${channel.id}&dest=podcast-sponsorship&amount=1800`}
-            className="h-10 px-4 rounded-md bg-[var(--color-accent)] text-white text-[14px] font-semibold inline-flex items-center gap-1.5 hover:translate-y-[-1px] transition-transform"
-          >
-            Review in Budget
-          </Link>
-          <button
-            type="button"
-            className="h-10 px-4 rounded-md text-[14px] text-[var(--color-ink-2)] hover:text-[var(--color-ink-1)]"
-          >
-            Dismiss
-          </button>
-        </div>
-      </section>
+              </li>
+            ))}
+          </ul>
+        }
+      />
     </div>
   );
 }

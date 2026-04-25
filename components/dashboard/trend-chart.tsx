@@ -10,7 +10,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CHANNELS, CHANNEL_SERIES, combinedTrend } from "@/lib/mock-data";
+import {
+  CHANNELS,
+  CHANNEL_SERIES,
+  combinedTrendRange,
+  type RangeKey,
+} from "@/lib/mock-data";
 import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { ChartTooltip } from "@/components/dashboard/chart-tooltip";
 
@@ -22,11 +27,17 @@ const metricTabs: { id: Metric; label: string }[] = [
   { id: "costPerSignup", label: "£ / signup" },
 ];
 
-export function TrendChart() {
+const TITLE_BY_RANGE: Record<RangeKey, string> = {
+  "7d": "7-day trend",
+  "30d": "30-day trend",
+  campaign: "Campaign trend",
+};
+
+export function TrendChart({ range }: { range: RangeKey }) {
   const [metric, setMetric] = useState<Metric>("signups");
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const data = combinedTrend(metric);
+  const data = combinedTrendRange(metric, range);
 
   const tooltipFormat =
     metric === "spend"
@@ -40,7 +51,7 @@ export function TrendChart() {
       <header className="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
           <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-[var(--color-ink-900)]">
-            30-day trend
+            {TITLE_BY_RANGE[range]}
           </h2>
           <p className="text-[13px] text-[var(--color-ink-600)]">
             One line per channel. Hover to focus.

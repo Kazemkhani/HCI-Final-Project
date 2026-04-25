@@ -211,24 +211,28 @@ function ComponentsSection() {
     <div className="space-y-12">
       <Block
         title="Buttons"
-        body="One primary slot per surface. Default for standard CTAs, ghost for tertiary."
+        body="One primary slot per surface. Default for standard CTAs, ghost for tertiary. Specimens — non-interactive."
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <button className="h-10 px-4 rounded-md bg-[var(--color-accent)] text-white text-[13.5px] font-semibold">
+        <div
+          role="group"
+          aria-label="Button specimens — non-interactive"
+          className="flex flex-wrap items-center gap-3"
+        >
+          <span className="h-10 px-4 rounded-md bg-[var(--color-accent)] text-white text-[13.5px] font-semibold inline-flex items-center">
             Primary action
-          </button>
-          <button className="h-10 px-4 rounded-md bg-[var(--color-ink-900)] text-[var(--color-bg)] text-[13.5px] font-medium">
+          </span>
+          <span className="h-10 px-4 rounded-md bg-[var(--color-ink-900)] text-[var(--color-bg)] text-[13.5px] font-medium inline-flex items-center">
             Default
-          </button>
-          <button className="h-10 px-4 rounded-md border border-[var(--color-border)] bg-[var(--color-ink-0)] text-[var(--color-ink-900)] text-[13.5px] font-medium">
+          </span>
+          <span className="h-10 px-4 rounded-md border border-[var(--color-border)] bg-[var(--color-ink-0)] text-[var(--color-ink-900)] text-[13.5px] font-medium inline-flex items-center">
             Outline
-          </button>
-          <button className="h-10 px-4 rounded-md text-[13.5px] font-medium text-[var(--color-ink-600)] hover:bg-[var(--color-ink-50)]">
+          </span>
+          <span className="h-10 px-4 rounded-md text-[13.5px] font-medium text-[var(--color-ink-600)] inline-flex items-center">
             Ghost
-          </button>
-          <button className="h-10 px-4 rounded-md bg-[var(--color-negative)] text-white text-[13.5px] font-medium">
+          </span>
+          <span className="h-10 px-4 rounded-md bg-[var(--color-negative)] text-white text-[13.5px] font-medium inline-flex items-center">
             Destructive
-          </button>
+          </span>
         </div>
       </Block>
 

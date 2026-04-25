@@ -18,15 +18,26 @@ import { TrendChart } from "@/components/dashboard/trend-chart";
 import { DashboardAlerts } from "@/components/dashboard/alerts";
 import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { EmptyState } from "@/components/ui/empty-state";
-import { WORKSPACE, formatGBP, formatNumber } from "@/lib/mock-data";
+import {
+  WORKSPACE,
+  formatGBP,
+  formatNumber,
+  rangeMetrics,
+  rangeChannelMetrics,
+  type RangeKey,
+} from "@/lib/mock-data";
 
-type Range = "7d" | "30d" | "campaign";
-
-const RANGES: { id: Range; label: string }[] = [
+const RANGES: { id: RangeKey; label: string }[] = [
   { id: "7d", label: "7d" },
   { id: "30d", label: "Last 30 days" },
   { id: "campaign", label: "Campaign" },
 ];
+
+const RANGE_SUBTITLE: Record<RangeKey, string> = {
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+  campaign: `Day 14 of 42`,
+};
 
 export default function DashboardPage() {
   return (
@@ -39,18 +50,28 @@ export default function DashboardPage() {
 function DashboardInner() {
   const params = useSearchParams();
   const demo = params.get("demo");
-  const [range, setRange] = useState<Range>("30d");
-  const { campaign, monthlyBudget, user, channels } = WORKSPACE;
+  const [range, setRange] = useState<RangeKey>("30d");
+  const { monthlyBudget, user, channels } = WORKSPACE;
 
   if (demo === "empty") return <EmptyDashboard />;
   if (demo === "error") return <ErrorDashboard />;
 
-  const signupSpark = channels[1].trend
-    .slice(-14)
-    .map((p) => ({ v: p.signups }));
+  const m = rangeMetrics(range);
+  const podcastSpark = rangeChannelMetrics(channels[1], range).spark;
+  const linkedinChannel = rangeChannelMetrics(channels[0], range);
   const cpsSpark = channels[0].trend
-    .slice(-14)
+    .slice(-podcastSpark.length)
     .map((p) => ({ v: p.costPerSignup }));
+  void linkedinChannel;
+
+  const spendHint =
+    range === "7d"
+      ? `of ${formatGBP(m.spendCap).replace(".00", "")} pace this week`
+      : range === "campaign"
+        ? `of ${formatGBP(m.spendCap).replace(".00", "")} planned across the campaign`
+        : `of ${formatGBP(monthlyBudget).replace(".00", "")} this month`;
+  const signupHintText =
+    range === "7d" ? "vs prior week" : range === "30d" ? "vs prior month" : "vs first half of campaign";
 
   return (
     <div className="space-y-8">
@@ -60,8 +81,8 @@ function DashboardInner() {
             <Greeting name={user.firstName} />
           </h1>
           <p className="mt-2 text-[14px] text-[var(--color-ink-600)]">
-            Day {campaign.daysRunning} of {campaign.daysTotal}. Here&apos;s
-            what your {formatGBP(monthlyBudget).replace(".00", "")} is doing.
+            {RANGE_SUBTITLE[range]}. Here&apos;s what your{" "}
+            {formatGBP(monthlyBudget).replace(".00", "")} is doing.
           </p>
         </div>
         <SegmentedTabs
@@ -78,40 +99,40 @@ function DashboardInner() {
       >
         <MetricTile
           index={0}
-          label="Spend to date"
-          value={formatGBP(campaign.spendToDate).replace(".00", "")}
-          hint={`of ${formatGBP(monthlyBudget).replace(".00", "")} this month`}
-          progress={{ value: campaign.spendToDate, max: monthlyBudget }}
+          label="Spend"
+          value={formatGBP(m.spend).replace(".00", "")}
+          hint={spendHint}
+          progress={{ value: m.spend, max: m.spendCap }}
           Icon={PoundSterling}
         />
         <MetricTile
           index={1}
           label="Signups"
-          value={formatNumber(campaign.signups)}
-          delta={{ value: 12, positiveIsGood: true }}
-          hint="vs last week"
-          spark={<Sparkline data={signupSpark} positive />}
+          value={formatNumber(m.signups)}
+          delta={{ value: m.signupsDelta, positiveIsGood: true }}
+          hint={signupHintText}
+          spark={<Sparkline data={podcastSpark} positive={m.signupsDelta >= 0} />}
           Icon={Users2}
         />
         <MetricTile
           index={2}
           label="Cost per signup"
-          value={`£${campaign.costPerSignupAvg.toFixed(2)}`}
-          delta={{ value: -8, positiveIsGood: false }}
+          value={`£${m.costPerSignup.toFixed(2)}`}
+          delta={{ value: m.cpsDelta, positiveIsGood: false }}
           hint="lower is better"
-          spark={<Sparkline data={cpsSpark} positive={false} />}
+          spark={<Sparkline data={cpsSpark} positive={m.cpsDelta < 0} />}
           Icon={ReceiptText}
         />
         <MetricTile
           index={3}
           label="Audience match"
-          value={`${campaign.weightedAudienceMatch} / 100`}
+          value={`${m.audienceMatch} / 100`}
           hint="weighted across channels"
           Icon={Target}
           spark={
             <div className="ml-auto pr-2">
               <RadialScore
-                value={campaign.weightedAudienceMatch}
+                value={m.audienceMatch}
                 size={36}
                 stroke={3.5}
                 fillColour="var(--color-accent)"
@@ -147,12 +168,12 @@ function DashboardInner() {
             </span>
           </div>
         </div>
-        <ChannelTable />
+        <ChannelTable range={range} />
       </section>
 
       <DashboardAlerts />
 
-      <TrendChart />
+      <TrendChart range={range} />
     </div>
   );
 }

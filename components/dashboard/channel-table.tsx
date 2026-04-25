@@ -11,7 +11,9 @@ import {
   formatGBP,
   formatGBPCompact,
   formatNumber,
+  rangeChannelMetrics,
   type Channel,
+  type RangeKey,
 } from "@/lib/mock-data";
 import { Sparkline } from "@/components/dashboard/sparkline";
 import { cn } from "@/lib/utils";
@@ -35,12 +37,49 @@ const headers: { key: SortKey; label: string; align?: "right" }[] = [
   { key: "audienceMatch", label: "Match", align: "right" },
 ];
 
-export function ChannelTable() {
+const TREND_COL_LABEL: Record<RangeKey, string> = {
+  "7d": "7-day",
+  "30d": "30-day",
+  campaign: "Campaign",
+};
+
+type Row = {
+  channel: Channel;
+  name: string;
+  type: Channel["type"];
+  allocation: number;
+  spend: number;
+  signups: number;
+  costPerSignup: number;
+  audienceMatch: number;
+  delta: number;
+  spark: { v: number }[];
+};
+
+export function ChannelTable({ range }: { range: RangeKey }) {
   const [sortKey, setSortKey] = useState<SortKey>("costPerSignup");
   const [asc, setAsc] = useState(true);
 
+  const rows: Row[] = useMemo(() => {
+    return CHANNELS.map((channel) => {
+      const m = rangeChannelMetrics(channel, range);
+      return {
+        channel,
+        name: channel.name,
+        type: channel.type,
+        allocation: channel.allocation,
+        spend: m.spend,
+        signups: m.signups,
+        costPerSignup: m.costPerSignup,
+        audienceMatch: channel.audienceMatch,
+        delta: m.delta,
+        spark: m.spark,
+      };
+    });
+  }, [range]);
+
   const sorted = useMemo(() => {
-    const arr = [...CHANNELS];
+    const arr = [...rows];
     arr.sort((a, b) => {
       const av = a[sortKey] as string | number;
       const bv = b[sortKey] as string | number;
@@ -52,7 +91,7 @@ export function ChannelTable() {
         : String(bv).localeCompare(String(av));
     });
     return arr;
-  }, [sortKey, asc]);
+  }, [rows, sortKey, asc]);
 
   const toggle = (k: SortKey) => {
     if (sortKey === k) setAsc((s) => !s);
@@ -110,13 +149,13 @@ export function ChannelTable() {
                 scope="col"
                 className="h-9 px-4 pr-6 text-right t-meta text-[var(--color-ink-400)] font-normal"
               >
-                7-day
+                {TREND_COL_LABEL[range]}
               </th>
             </tr>
           </thead>
           <tbody>
-            {sorted.map((c) => (
-              <ChannelRow key={c.id} channel={c} />
+            {sorted.map((row) => (
+              <ChannelRow key={row.channel.id} row={row} />
             ))}
           </tbody>
         </table>
@@ -125,8 +164,8 @@ export function ChannelTable() {
   );
 }
 
-function ChannelRow({ channel }: { channel: Channel }) {
-  const trendData = channel.trend.slice(-14).map((p) => ({ v: p.signups }));
+function ChannelRow({ row }: { row: Row }) {
+  const { channel, spend, signups, costPerSignup, delta, spark } = row;
   return (
     <tr className="border-t border-[var(--color-border)] hover:bg-[var(--color-ink-50)] transition-colors group">
       <td className="px-4 pl-6 py-3 relative">
@@ -154,13 +193,13 @@ function ChannelRow({ channel }: { channel: Channel }) {
         {formatGBPCompact(channel.allocation)}
       </td>
       <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
-        {formatGBP(channel.spend)}
+        {formatGBP(spend)}
       </td>
       <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
-        {formatNumber(channel.signups)}
+        {formatNumber(signups)}
       </td>
       <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
-        £{channel.costPerSignup.toFixed(2)}
+        £{costPerSignup.toFixed(2)}
       </td>
       <td className="px-4 py-3 text-right">
         <span className="font-mono tabular-nums text-[var(--color-ink-900)]">
@@ -172,22 +211,22 @@ function ChannelRow({ channel }: { channel: Channel }) {
           <span
             className={cn(
               "text-[11px] tabular-nums inline-flex items-center gap-0.5 font-mono",
-              channel.delta7d > 0
+              delta > 0
                 ? "text-[var(--color-success)]"
-                : channel.delta7d < 0
+                : delta < 0
                   ? "text-[var(--color-negative)]"
                   : "text-[var(--color-ink-400)]",
             )}
           >
-            {channel.delta7d > 0 ? (
+            {delta > 0 ? (
               <ArrowUpRight size={11} strokeWidth={2.2} aria-hidden />
-            ) : channel.delta7d < 0 ? (
+            ) : delta < 0 ? (
               <ArrowDownRight size={11} strokeWidth={2.2} aria-hidden />
             ) : null}
-            {Math.abs(channel.delta7d)}%
+            {Math.abs(delta)}%
           </span>
           <div className="w-16 h-6">
-            <Sparkline data={trendData} positive={channel.delta7d >= 0} />
+            <Sparkline data={spark} positive={delta >= 0} />
           </div>
         </div>
       </td>

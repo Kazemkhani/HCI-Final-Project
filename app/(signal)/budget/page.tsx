@@ -92,8 +92,13 @@ function BudgetInner() {
 
   const submitDecline = () => {
     setDeclineOpen(false);
-    setToast("Decline noted. We won't suggest this move again this week.");
-    setTimeout(() => setToast(null), 3500);
+    const trimmed = declineReason.trim();
+    const message = trimmed
+      ? `Noted — "${trimmed.length > 60 ? trimmed.slice(0, 60) + "…" : trimmed}". We'll factor it in next week.`
+      : "Decline noted. We won't suggest this move again this week.";
+    setToast(message);
+    setDeclineReason("");
+    setTimeout(() => setToast(null), 4000);
   };
 
   return (
@@ -120,32 +125,61 @@ function BudgetInner() {
           DestIcon={Mic}
         />
 
-        <div className="mt-8">
-          <div className="flex items-center justify-between text-[12px] text-[var(--color-ink-3)] mb-2">
-            <label htmlFor="amount" className="font-mono uppercase tracking-[0.06em]">
-              Amount to move
-            </label>
-            <span className="font-mono tabular-nums text-[var(--color-ink-1)] text-[14px]">
-              {formatGBP(amount).replace(".00", "")} / mo
+        <AnimatePresence initial={false}>
+          {adjustOpen && (
+            <motion.div
+              key="amount-adjust"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-8">
+                <div className="flex items-center justify-between text-[12px] text-[var(--color-ink-3)] mb-2">
+                  <label
+                    htmlFor="amount"
+                    className="font-mono uppercase tracking-[0.06em]"
+                  >
+                    Amount to move
+                  </label>
+                  <span className="font-mono tabular-nums text-[var(--color-ink-1)] text-[14px]">
+                    {formatGBP(amount).replace(".00", "")} / mo
+                  </span>
+                </div>
+                <input
+                  id="amount"
+                  type="range"
+                  min={500}
+                  max={3000}
+                  step={50}
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  aria-label="Amount to reallocate"
+                  className="w-full accent-[var(--color-accent)]"
+                />
+                <div className="flex justify-between text-[11px] text-[var(--color-ink-3)] font-mono mt-1.5">
+                  <span>£500</span>
+                  <span>£1.5k</span>
+                  <span>£3k</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {!adjustOpen && (
+          <div className="mt-6 text-[12.5px] text-[var(--color-ink-3)] flex items-center justify-between">
+            <span>
+              Suggested:{" "}
+              <span className="font-mono tabular-nums text-[var(--color-ink-1)]">
+                {formatGBP(amount).replace(".00", "")} / mo
+              </span>
+            </span>
+            <span className="text-[var(--color-ink-3)]">
+              Press <span className="text-[var(--color-ink-1)]">Adjust</span> to fine-tune.
             </span>
           </div>
-          <input
-            id="amount"
-            type="range"
-            min={500}
-            max={3000}
-            step={50}
-            value={amount}
-            onChange={(e) => setAmount(Number(e.target.value))}
-            aria-label="Amount to reallocate"
-            className="w-full accent-[var(--color-accent)]"
-          />
-          <div className="flex justify-between text-[11px] text-[var(--color-ink-3)] font-mono mt-1.5">
-            <span>£500</span>
-            <span>£1.5k</span>
-            <span>£3k</span>
-          </div>
-        </div>
+        )}
       </section>
 
       <section className="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] p-6 sm:p-8">

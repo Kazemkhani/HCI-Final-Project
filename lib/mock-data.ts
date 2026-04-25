@@ -426,6 +426,153 @@ export function combinedTrend(metric: "signups" | "spend" | "costPerSignup") {
   });
 }
 
+// ─── Range-aware aggregations ────────────────────────────────────────────
+// Drive every dashboard surface from a single RangeKey so clicking the
+// 7d / 30d / Campaign tabs causes downstream numbers, sparklines, table
+// rows and trend chart to actually change.
+
+export type RangeKey = "7d" | "30d" | "campaign";
+
+export const RANGE_LABEL: Record<RangeKey, string> = {
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+  campaign: "Campaign to date",
+};
+
+const RANGE_DAYS: Record<RangeKey, number> = {
+  "7d": 7,
+  "30d": 30,
+  campaign: 42,
+};
+
+function trendSlice(channel: Channel, range: RangeKey): TrendPoint[] {
+  const days = Math.min(RANGE_DAYS[range], channel.trend.length);
+  return channel.trend.slice(-days);
+}
+
+function projectTotal(value: number, range: RangeKey): number {
+  // Trend window is locked at 30 days. For "campaign" (42 days), project
+  // the running rate forward so totals look like a full campaign sum.
+  if (range !== "campaign") return value;
+  return Math.round(value * (RANGE_DAYS.campaign / 30));
+}
+
+export type RangeMetrics = {
+  signups: number;
+  spend: number;
+  costPerSignup: number;
+  audienceMatch: number;
+  signupsDelta: number;
+  cpsDelta: number;
+  spendCap: number;
+  daysLabel: string;
+};
+
+export function rangeMetrics(range: RangeKey): RangeMetrics {
+  const rate = WORKSPACE.monthlyBudget / 30;
+  const spendCap = Math.round(rate * RANGE_DAYS[range]);
+
+  let signupsRaw = 0;
+  let spendRaw = 0;
+  let firstHalfSignups = 0;
+  let secondHalfSignups = 0;
+  let firstHalfCps = 0;
+  let secondHalfCps = 0;
+  let cpsCount = 0;
+
+  for (const ch of CHANNELS) {
+    const slice = trendSlice(ch, range);
+    const half = Math.floor(slice.length / 2);
+    for (let i = 0; i < slice.length; i += 1) {
+      const p = slice[i];
+      signupsRaw += p.signups;
+      spendRaw += p.spend;
+      if (p.signups > 0) {
+        const cps = p.spend / p.signups;
+        if (i < half) firstHalfCps += cps;
+        else secondHalfCps += cps;
+        cpsCount += 1;
+      }
+      if (i < half) firstHalfSignups += p.signups;
+      else secondHalfSignups += p.signups;
+    }
+  }
+
+  const signups = projectTotal(signupsRaw, range);
+  const spend = projectTotal(spendRaw, range);
+  const costPerSignup = signups > 0 ? +(spend / signups).toFixed(2) : 0;
+
+  const signupsDelta =
+    firstHalfSignups > 0
+      ? Math.round(((secondHalfSignups - firstHalfSignups) / firstHalfSignups) * 100)
+      : 0;
+  const halfCount = cpsCount / 2;
+  const firstAvg = halfCount > 0 ? firstHalfCps / halfCount : 0;
+  const secondAvg = halfCount > 0 ? secondHalfCps / halfCount : 0;
+  const cpsDelta =
+    firstAvg > 0 ? Math.round(((secondAvg - firstAvg) / firstAvg) * 100) : 0;
+
+  // Audience match shifts mildly across ranges so the value tile actually
+  // moves. Anchored on the workspace baseline for "30d".
+  const baseMatch = WORKSPACE.campaign.weightedAudienceMatch;
+  const audienceMatch =
+    range === "7d" ? baseMatch + 4 : range === "campaign" ? baseMatch - 3 : baseMatch;
+
+  return {
+    signups,
+    spend,
+    costPerSignup,
+    audienceMatch,
+    signupsDelta,
+    cpsDelta,
+    spendCap,
+    daysLabel: RANGE_LABEL[range],
+  };
+}
+
+export type RangeChannelMetrics = {
+  signups: number;
+  spend: number;
+  costPerSignup: number;
+  delta: number;
+  spark: { v: number }[];
+};
+
+export function rangeChannelMetrics(
+  channel: Channel,
+  range: RangeKey,
+): RangeChannelMetrics {
+  const slice = trendSlice(channel, range);
+  const signupsRaw = slice.reduce((s, p) => s + p.signups, 0);
+  const spendRaw = slice.reduce((s, p) => s + p.spend, 0);
+  const signups = projectTotal(signupsRaw, range);
+  const spend = projectTotal(spendRaw, range);
+  const costPerSignup = signups > 0 ? +(spend / signups).toFixed(2) : 0;
+
+  const half = Math.floor(slice.length / 2);
+  const a = slice.slice(0, half).reduce((s, p) => s + p.signups, 0);
+  const b = slice.slice(half).reduce((s, p) => s + p.signups, 0);
+  const delta = a > 0 ? Math.round(((b - a) / a) * 100) : 0;
+
+  const spark = slice.map((p) => ({ v: p.signups }));
+  return { signups, spend, costPerSignup, delta, spark };
+}
+
+export function combinedTrendRange(
+  metric: "signups" | "spend" | "costPerSignup",
+  range: RangeKey,
+) {
+  const days = Math.min(RANGE_DAYS[range], CHANNELS[0].trend.length);
+  const dates = CHANNELS[0].trend.slice(-days).map((p) => p.date);
+  return dates.map((date, i) => {
+    const row: Record<string, string | number> = { date };
+    for (const ch of CHANNELS) {
+      row[ch.id] = ch.trend.slice(-days)[i][metric];
+    }
+    return row;
+  });
+}
+
 export function formatGBP(value: number): string {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
