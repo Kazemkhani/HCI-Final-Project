@@ -9,6 +9,7 @@ import {
   PoundSterling,
   Type,
   GitBranch,
+  Palette,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ const NAV: NavItem[] = [
   { href: "/budget", label: "Budget", icon: PoundSterling },
   { href: "/copy", label: "Copy", icon: Type },
   { href: "/flow", label: "Flow", icon: GitBranch },
+  { href: "/style-guide", label: "Style guide", icon: Palette },
 ];
 
 export function TopNav() {
