@@ -34,7 +34,7 @@ export function Sidebar() {
   return (
     <aside
       aria-label="Primary navigation"
-      className="hidden lg:flex w-64 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] sticky top-0 h-screen"
+      className="hidden lg:flex w-64 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] sticky top-0 h-screen overflow-y-auto"
     >
       <div className="px-6 pt-8 pb-6">
         <Link
@@ -81,12 +81,13 @@ export function Sidebar() {
 
       <div className="px-4 pb-6">
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/60 p-3 flex items-center gap-3">
-          <div
+          <span
             aria-hidden
             className="size-7 rounded-md bg-[var(--color-ink-1)] text-[var(--color-bg)] grid place-items-center text-[11px] font-semibold tracking-tight"
           >
             JD
-          </div>
+          </span>
+          <span className="sr-only">Logged in as John Doe.</span>
           <div className="min-w-0">
             <div className="text-[13px] font-medium text-[var(--color-ink-1)] truncate">
               Acme Productivity

@@ -43,12 +43,13 @@ export function TopNav() {
             .
           </span>
         </Link>
-        <div
+        <span
           aria-hidden
           className="size-7 rounded-md bg-[var(--color-ink-1)] text-[var(--color-bg)] grid place-items-center text-[11px] font-semibold tracking-tight"
         >
           JD
-        </div>
+        </span>
+        <span className="sr-only">Logged in as John Doe.</span>
       </div>
       <nav
         aria-label="Primary"
