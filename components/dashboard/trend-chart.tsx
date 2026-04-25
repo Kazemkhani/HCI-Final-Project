@@ -72,28 +72,42 @@ export function TrendChart() {
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4 text-[12px]">
-        {CHANNELS.map((c, i) => (
-          <button
-            key={c.id}
-            type="button"
-            onMouseEnter={() => setHovered(c.id)}
-            onMouseLeave={() => setHovered(null)}
-            onFocus={() => setHovered(c.id)}
-            onBlur={() => setHovered(null)}
-            className="inline-flex items-center gap-1.5 text-[var(--color-ink-2)] hover:text-[var(--color-ink-1)]"
-          >
-            <span
-              aria-hidden
-              className="size-2 rounded-full"
-              style={{
-                background:
-                  hovered === c.id ? "var(--color-accent)" : palette[i],
-              }}
-            />
-            {c.name}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-4 text-[12px]">
+        {CHANNELS.map((c, i) => {
+          const colour =
+            hovered === c.id ? "var(--color-accent)" : palette[i];
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onMouseEnter={() => setHovered(c.id)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(c.id)}
+              onBlur={() => setHovered(null)}
+              className="group inline-flex items-center gap-2 text-[var(--color-ink-2)] hover:text-[var(--color-ink-1)]"
+              aria-label={`Highlight ${c.name} on chart`}
+            >
+              <svg
+                aria-hidden
+                width={20}
+                height={8}
+                viewBox="0 0 20 8"
+                className="shrink-0"
+              >
+                <line
+                  x1={0}
+                  y1={4}
+                  x2={20}
+                  y2={4}
+                  stroke={colour}
+                  strokeWidth={hovered === c.id ? 2.2 : 1.6}
+                />
+                <circle cx={10} cy={4} r={2.2} fill={colour} />
+              </svg>
+              {c.name}
+            </button>
+          );
+        })}
       </div>
 
       <div className="h-[280px] w-full">
