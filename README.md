@@ -2,7 +2,7 @@
 
 A campaign planning and measurement web app for early-stage startup marketers. HCI Final Project, University of Birmingham Dubai.
 
-> Live: _to be added after Phase 11 deploy._
+> Live: **https://signal-drab-xi.vercel.app**
 
 ## Stack
 
