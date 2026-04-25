@@ -28,11 +28,11 @@ type SortKey =
 const headers: { key: SortKey; label: string; align?: "right" }[] = [
   { key: "name", label: "Channel" },
   { key: "type", label: "Type" },
-  { key: "allocation", label: "Allocation", align: "right" },
-  { key: "spend", label: "Spend", align: "right" },
+  { key: "allocation", label: "Allocation £", align: "right" },
+  { key: "spend", label: "Spend £", align: "right" },
   { key: "signups", label: "Signups", align: "right" },
   { key: "costPerSignup", label: "£ / signup", align: "right" },
-  { key: "audienceMatch", label: "Match", align: "right" },
+  { key: "audienceMatch", label: "Match / 100", align: "right" },
 ];
 
 export function ChannelTable() {
