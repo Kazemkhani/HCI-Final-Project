@@ -108,7 +108,7 @@ export default function FlowPage() {
               <TypeIcon size={20} strokeWidth={1.6} />
             </span>
             <div>
-              <h2 className="font-display text-[22px] text-[var(--color-ink-1)]">
+              <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-[var(--color-ink-900)]">
                 Clarity Check (utility)
               </h2>
               <p className="text-[13.5px] text-[var(--color-ink-2)] mt-1 max-w-md">
@@ -127,9 +127,6 @@ export default function FlowPage() {
         </div>
       </section>
 
-      <p className="text-[13px] text-[var(--color-ink-3)]">
-        Core task completes in five steps. Average path under four minutes.
-      </p>
     </div>
   );
 }
@@ -156,7 +153,7 @@ function Node({ node, index }: { node: FlowNode; index: number }) {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Icon size={14} strokeWidth={1.7} aria-hidden className="text-[var(--color-ink-1)]" />
-            <h3 className="font-display text-[18px] text-[var(--color-ink-1)] leading-tight">
+            <h3 className="text-[16px] font-semibold text-[var(--color-ink-900)] leading-tight">
               {title}
             </h3>
           </div>

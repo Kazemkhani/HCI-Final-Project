@@ -285,8 +285,8 @@ export default function CopyPage() {
                   <div className="flex items-center gap-1.5 mb-2 text-[11px] uppercase tracking-[0.08em] font-mono text-[var(--color-ink-3)]">
                     <Wand2 size={11} aria-hidden /> Claude&apos;s rewrite
                   </div>
-                  <p className="font-display text-[18px] leading-snug text-[var(--color-ink-1)]">
-                    {result.rewrite}
+                  <p className="text-[16px] leading-relaxed text-[var(--color-ink-900)] italic">
+                    “{result.rewrite}”
                   </p>
                 </div>
               )}

@@ -300,7 +300,7 @@ function BudgetInner() {
               onClick={(e) => e.stopPropagation()}
               className="bg-[var(--color-surface)] rounded-2xl shadow-[var(--shadow-md)] p-6 max-w-[420px] w-full"
             >
-              <h3 className="font-display text-[20px] text-[var(--color-ink-1)]">
+              <h3 className="text-[18px] font-semibold text-[var(--color-ink-900)]">
                 Why are you declining?
               </h3>
               <p className="mt-1 text-[13px] text-[var(--color-ink-2)]">

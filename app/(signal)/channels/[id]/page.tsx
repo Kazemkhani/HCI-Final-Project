@@ -202,7 +202,7 @@ export default async function ChannelDeepDivePage({
         <span className="text-[11px] uppercase tracking-[0.08em] font-mono text-[var(--color-ink-3)]">
           Recommendation
         </span>
-        <h2 className="font-display text-[22px] mt-1 text-[var(--color-ink-1)]">
+        <h2 className="text-[20px] font-semibold tracking-[-0.01em] mt-1 text-[var(--color-ink-900)] leading-snug max-w-prose">
           {recommendationFor(channel.id)}
         </h2>
 
