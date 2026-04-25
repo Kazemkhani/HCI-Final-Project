@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
-  Users,
   PoundSterling,
   Megaphone,
   Sparkles,
@@ -64,11 +64,9 @@ export default function BriefPage() {
     markLaunched,
   } = useBriefStore();
 
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHydrated();
   const [submitting, setSubmitting] = useState(false);
   const [otherInput, setOtherInput] = useState("");
-
-  useEffect(() => setHydrated(true), []);
 
   const next = () => {
     if (step < 4) setStep(((step as number) + 1) as 1 | 2 | 3 | 4);

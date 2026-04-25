@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -45,10 +46,8 @@ export default function ChannelMixPage() {
   const router = useRouter();
   const { stage, budget, audiences, customAudience, goal, launched } = useBriefStore();
   const { allocations, total, setAllocation } = useMixStore();
-  const [hydrated, setHydrated] = useState(false);
+  const hydrated = useHydrated();
   const [launching, setLaunching] = useState(false);
-
-  useEffect(() => setHydrated(true), []);
 
   if (hydrated && !launched) {
     return (
