@@ -32,7 +32,7 @@ const headers: { key: SortKey; label: string; align?: "right" }[] = [
   { key: "spend", label: "Spend £", align: "right" },
   { key: "signups", label: "Signups", align: "right" },
   { key: "costPerSignup", label: "£ / signup", align: "right" },
-  { key: "audienceMatch", label: "Match / 100", align: "right" },
+  { key: "audienceMatch", label: "Match", align: "right" },
 ];
 
 export function ChannelTable() {
@@ -63,38 +63,52 @@ export function ChannelTable() {
   };
 
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] overflow-hidden">
+    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-ink-0)] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-[13px]">
           <thead>
-            <tr className="text-[11px] uppercase tracking-[0.06em] text-[var(--color-ink-3)] font-mono">
-              {headers.map((h) => (
-                <th
-                  key={h.key}
-                  scope="col"
-                  className={cn(
-                    "h-11 px-4 first:pl-6 last:pr-6 text-left font-normal",
-                    h.align === "right" && "text-right",
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggle(h.key)}
-                    className="inline-flex items-center gap-1 hover:text-[var(--color-ink-1)] transition-colors"
+            <tr>
+              {headers.map((h) => {
+                const sortState =
+                  sortKey === h.key
+                    ? asc
+                      ? "ascending"
+                      : "descending"
+                    : "none";
+                return (
+                  <th
+                    key={h.key}
+                    scope="col"
+                    aria-sort={sortState}
+                    className={cn(
+                      "h-9 px-4 first:pl-6 last:pr-6 text-left font-normal",
+                      "t-meta text-[var(--color-ink-400)]",
+                      h.align === "right" && "text-right",
+                    )}
                   >
-                    {h.label}
-                    {sortKey === h.key &&
-                      (asc ? (
-                        <ArrowUp size={10} aria-hidden />
-                      ) : (
-                        <ArrowDown size={10} aria-hidden />
-                      ))}
-                  </button>
-                </th>
-              ))}
+                    <button
+                      type="button"
+                      onClick={() => toggle(h.key)}
+                      className={cn(
+                        "inline-flex items-center gap-1 hover:text-[var(--color-ink-900)] transition-colors uppercase",
+                        h.align === "right" && "flex-row-reverse",
+                      )}
+                      aria-label={`Sort by ${h.label}`}
+                    >
+                      {h.label}
+                      {sortKey === h.key &&
+                        (asc ? (
+                          <ArrowUp size={10} aria-hidden />
+                        ) : (
+                          <ArrowDown size={10} aria-hidden />
+                        ))}
+                    </button>
+                  </th>
+                );
+              })}
               <th
                 scope="col"
-                className="h-11 px-4 pr-6 text-right text-[11px] uppercase tracking-[0.06em] text-[var(--color-ink-3)] font-normal"
+                className="h-9 px-4 pr-6 text-right t-meta text-[var(--color-ink-400)] font-normal"
               >
                 7-day
               </th>
@@ -114,56 +128,62 @@ export function ChannelTable() {
 function ChannelRow({ channel }: { channel: Channel }) {
   const trendData = channel.trend.slice(-14).map((p) => ({ v: p.signups }));
   return (
-    <tr className="border-t border-[var(--color-border)] hover:bg-[var(--color-bg)]/40 transition-colors group">
+    <tr className="border-t border-[var(--color-border)] hover:bg-[var(--color-ink-50)] transition-colors group">
       <td className="px-4 pl-6 py-3 relative">
         <span
           aria-hidden
           className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full"
           style={{ background: STATUS_COLOUR[channel.status] }}
-          title={STATUS_LABEL[channel.status]}
         />
+        <span className="sr-only">
+          Status: {STATUS_LABEL[channel.status]}.
+        </span>
         <Link
           href={`/channels/${channel.id}`}
-          className="text-[var(--color-ink-1)] font-medium group-hover:underline"
+          className="text-[var(--color-ink-900)] font-medium hover:underline underline-offset-2"
         >
           {channel.name}
         </Link>
       </td>
       <td className="px-4 py-3">
-        <span className="text-[10.5px] uppercase tracking-[0.08em] text-[var(--color-ink-2)] font-mono">
+        <span className="t-meta text-[var(--color-ink-500)]">
           {TYPE_LABEL[channel.type]}
         </span>
       </td>
-      <td className="px-4 py-3 text-right font-mono tabular-nums">
+      <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
         {formatGBPCompact(channel.allocation)}
       </td>
-      <td className="px-4 py-3 text-right font-mono tabular-nums">
+      <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
         {formatGBP(channel.spend)}
       </td>
-      <td className="px-4 py-3 text-right font-mono tabular-nums">
+      <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
         {formatNumber(channel.signups)}
       </td>
-      <td className="px-4 py-3 text-right font-mono tabular-nums">
+      <td className="px-4 py-3 text-right font-mono tabular-nums text-[var(--color-ink-900)]">
         £{channel.costPerSignup.toFixed(2)}
       </td>
       <td className="px-4 py-3 text-right">
-        <span className="font-mono tabular-nums">{channel.audienceMatch}</span>
+        <span className="font-mono tabular-nums text-[var(--color-ink-900)]">
+          {channel.audienceMatch}
+        </span>
       </td>
       <td className="px-4 pr-6 py-3 text-right">
         <div className="ml-auto flex items-center justify-end gap-2 w-[120px]">
           <span
             className={cn(
-              "text-[11px] tabular-nums inline-flex items-center gap-0.5",
-              channel.delta7d >= 0
-                ? "text-[var(--color-accent)]"
-                : "text-[var(--color-negative)]",
+              "text-[11px] tabular-nums inline-flex items-center gap-0.5 font-mono",
+              channel.delta7d > 0
+                ? "text-[var(--color-success)]"
+                : channel.delta7d < 0
+                  ? "text-[var(--color-negative)]"
+                  : "text-[var(--color-ink-400)]",
             )}
           >
-            {channel.delta7d >= 0 ? (
+            {channel.delta7d > 0 ? (
               <ArrowUpRight size={11} strokeWidth={2.2} aria-hidden />
-            ) : (
+            ) : channel.delta7d < 0 ? (
               <ArrowDownRight size={11} strokeWidth={2.2} aria-hidden />
-            )}
+            ) : null}
             {Math.abs(channel.delta7d)}%
           </span>
           <div className="w-16 h-6">

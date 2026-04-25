@@ -10,20 +10,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { TooltipContentProps } from "recharts/types/component/Tooltip";
-import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { CHANNELS, CHANNEL_SERIES, combinedTrend } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
+import { SegmentedTabs } from "@/components/ui/segmented-tabs";
+import { ChartTooltip } from "@/components/dashboard/chart-tooltip";
 
 type Metric = "signups" | "spend" | "costPerSignup";
 
-const metricLabels: Record<Metric, string> = {
-  signups: "Signups",
-  spend: "Spend",
-  costPerSignup: "£ / signup",
-};
-
-// Channel colour comes from CHANNEL_SERIES (id-mapped, see DESIGN.md §1.1).
+const metricTabs: { id: Metric; label: string }[] = [
+  { id: "signups", label: "Signups" },
+  { id: "spend", label: "Spend" },
+  { id: "costPerSignup", label: "£ / signup" },
+];
 
 export function TrendChart() {
   const [metric, setMetric] = useState<Metric>("signups");
@@ -31,47 +28,38 @@ export function TrendChart() {
 
   const data = combinedTrend(metric);
 
+  const tooltipFormat =
+    metric === "spend"
+      ? { prefix: "£", decimals: 0 }
+      : metric === "costPerSignup"
+        ? { prefix: "£", decimals: 2 }
+        : { decimals: 0 };
+
   return (
-    <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] p-6">
+    <section className="rounded-lg border border-[var(--color-border)] bg-[var(--color-ink-0)] p-6">
       <header className="flex items-start justify-between gap-4 mb-4 flex-wrap">
         <div>
-          <h2 className="font-display text-[20px] text-[var(--color-ink-1)]">
+          <h2 className="text-[20px] font-semibold tracking-[-0.01em] text-[var(--color-ink-900)]">
             30-day trend
           </h2>
-          <p className="text-[13px] text-[var(--color-ink-2)]">
+          <p className="text-[13px] text-[var(--color-ink-600)]">
             One line per channel. Hover to focus.
           </p>
         </div>
-        <div
-          role="tablist"
-          className="inline-flex h-9 rounded-md bg-[var(--color-bg)] p-1 text-[12px]"
-        >
-          {(Object.keys(metricLabels) as Metric[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              role="tab"
-              aria-selected={metric === m}
-              onClick={() => setMetric(m)}
-              className={cn(
-                "px-3 h-7 rounded-[5px] font-medium transition-colors",
-                metric === m
-                  ? "bg-[var(--color-surface)] text-[var(--color-ink-1)] shadow-[0_1px_2px_rgba(10,10,10,0.06)]"
-                  : "text-[var(--color-ink-2)] hover:text-[var(--color-ink-1)]",
-              )}
-            >
-              {metricLabels[m]}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs
+          ariaLabel="Trend metric"
+          tabs={metricTabs}
+          value={metric}
+          onChange={setMetric}
+        />
       </header>
 
       <div className="flex flex-wrap gap-x-5 gap-y-2 mb-4 text-[12px]">
         {CHANNELS.map((c) => {
-          const colour =
-            hovered === c.id
-              ? "var(--color-accent)"
-              : CHANNEL_SERIES[c.id];
+          const isHovered = hovered === c.id;
+          const colour = isHovered
+            ? "var(--color-accent)"
+            : CHANNEL_SERIES[c.id];
           return (
             <button
               key={c.id}
@@ -80,8 +68,9 @@ export function TrendChart() {
               onMouseLeave={() => setHovered(null)}
               onFocus={() => setHovered(c.id)}
               onBlur={() => setHovered(null)}
-              className="group inline-flex items-center gap-2 text-[var(--color-ink-2)] hover:text-[var(--color-ink-1)]"
+              aria-pressed={isHovered}
               aria-label={`Highlight ${c.name} on chart`}
+              className="group inline-flex items-center gap-2 text-[var(--color-ink-600)] hover:text-[var(--color-ink-900)]"
             >
               <svg
                 aria-hidden
@@ -96,7 +85,7 @@ export function TrendChart() {
                   x2={20}
                   y2={4}
                   stroke={colour}
-                  strokeWidth={hovered === c.id ? 2.2 : 1.6}
+                  strokeWidth={isHovered ? 2.2 : 1.6}
                 />
                 <circle cx={10} cy={4} r={2.2} fill={colour} />
               </svg>
@@ -128,7 +117,7 @@ export function TrendChart() {
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={42}
+              width={44}
               allowDecimals={false}
               tickFormatter={(n: number) =>
                 metric === "spend"
@@ -141,7 +130,21 @@ export function TrendChart() {
               }
             />
             <Tooltip
-              content={(props) => <ChartTooltip {...props} metric={metric} />}
+              cursor={{ stroke: "var(--color-border)" }}
+              content={(props) => (
+                <ChartTooltip
+                  {...props}
+                  format={tooltipFormat}
+                  labelFormatter={(label) =>
+                    label
+                      ? new Date(String(label)).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })
+                      : ""
+                  }
+                />
+              )}
             />
             {CHANNELS.map((c) => (
               <Line
@@ -164,58 +167,5 @@ export function TrendChart() {
         </ResponsiveContainer>
       </div>
     </section>
-  );
-}
-
-type ChartTooltipProps = TooltipContentProps<ValueType, NameType> & {
-  metric: Metric;
-};
-
-function formatTooltipValue(v: ValueType | undefined, metric: Metric): string {
-  const n = typeof v === "number" ? v : Number(Array.isArray(v) ? v[0] : v);
-  if (Number.isNaN(n)) return String(v ?? "");
-  return n.toFixed(metric === "costPerSignup" ? 2 : 0);
-}
-
-function ChartTooltip({
-  active,
-  label,
-  payload,
-  metric,
-}: ChartTooltipProps) {
-  if (!active || !payload?.length) return null;
-  const date = label
-    ? new Date(String(label)).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-      })
-    : "";
-  return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] p-3 min-w-[200px]">
-      <div className="text-[11px] uppercase tracking-[0.08em] font-mono text-[var(--color-ink-3)] mb-2">
-        {date}
-      </div>
-      <div className="space-y-1">
-        {payload.map((p) => (
-          <div
-            key={String(p.dataKey)}
-            className="flex items-center justify-between gap-4 text-[12px]"
-          >
-            <span className="inline-flex items-center gap-2">
-              <span
-                aria-hidden
-                className="size-2 rounded-full"
-                style={{ background: p.color }}
-              />
-              <span className="text-[var(--color-ink-2)]">{p.name}</span>
-            </span>
-            <span className="font-mono tabular-nums text-[var(--color-ink-1)]">
-              {metric === "spend" || metric === "costPerSignup" ? "£" : ""}
-              {formatTooltipValue(p.value, metric)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
