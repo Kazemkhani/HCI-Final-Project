@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { AudienceOption, Goal } from "@/lib/mock-data";
+import { useMixStore } from "@/lib/mix-store";
 
 export type BriefState = {
   stage: "Pre-seed" | "Seed" | "Series A" | "Series B+";
@@ -47,7 +48,11 @@ export const useBriefStore = create<BriefState>()(
     (set) => ({
       ...DEFAULT,
       setStage: (stage) => set({ stage }),
-      setBudget: (budget) => set({ budget }),
+      setBudget: (budget) => {
+        set({ budget });
+        // Single source of truth: brief budget drives mix total.
+        useMixStore.getState().scaleTo(budget);
+      },
       toggleAudience: (a) =>
         set((s) => ({
           audiences: s.audiences.includes(a)
@@ -62,8 +67,17 @@ export const useBriefStore = create<BriefState>()(
     }),
     {
       name: "signal-brief",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        // After rehydration, sync mix total to the persisted brief budget.
+        if (state?.budget) {
+          // setTimeout 0 to let mix-store hydrate first.
+          setTimeout(() => {
+            useMixStore.getState().scaleTo(state.budget);
+          }, 0);
+        }
+      },
     },
   ),
 );

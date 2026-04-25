@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useBriefStore } from "@/lib/brief-store";
-import { useMixStore } from "@/lib/mix-store";
+import { useMixStore, useMixTotal } from "@/lib/mix-store";
 import {
   CHANNELS,
   GOAL_OPTIONS,
@@ -45,7 +45,9 @@ const typeColour: Record<string, string> = {
 export default function ChannelMixPage() {
   const router = useRouter();
   const { stage, budget, audiences, customAudience, goal, launched } = useBriefStore();
-  const { allocations, total, setAllocation } = useMixStore();
+  const allocations = useMixStore((s) => s.allocations);
+  const setAllocation = useMixStore((s) => s.setAllocation);
+  const total = useMixTotal();
   const hydrated = useHydrated();
   const [launching, setLaunching] = useState(false);
 
@@ -142,6 +144,7 @@ export default function ChannelMixPage() {
                 audienceMatch={c.audienceMatch}
                 allocation={value}
                 pct={pct}
+                total={total}
                 Icon={Icon}
                 onChange={(n) => setAllocation(c.id, n)}
               />
@@ -269,6 +272,7 @@ type ChannelCardProps = {
   audienceMatch: number;
   allocation: number;
   pct: number;
+  total: number;
   Icon: LucideIcon;
   onChange: (n: number) => void;
 };
@@ -282,10 +286,15 @@ function ChannelCard({
   audienceMatch,
   allocation,
   pct,
+  total,
   Icon,
   onChange,
 }: ChannelCardProps) {
   const [open, setOpen] = useState(false);
+  // Slider can take up to total minus floors reserved for the 4 other channels.
+  const sliderMax = Math.max(100, total - 4 * 100);
+  const sliderMin = 100;
+  const sliderStep = total >= 20000 ? 250 : 100;
 
   return (
     <article className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] overflow-hidden">
@@ -339,10 +348,10 @@ function ChannelCard({
       <div className="px-5 pb-4">
         <input
           type="range"
-          min={100}
-          max={9000}
-          step={100}
-          value={allocation}
+          min={sliderMin}
+          max={sliderMax}
+          step={sliderStep}
+          value={Math.min(allocation, sliderMax)}
           onChange={(e) => onChange(Number(e.target.value))}
           aria-label={`Allocation for ${name}`}
           className="w-full accent-[var(--color-accent)]"
