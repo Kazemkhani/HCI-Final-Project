@@ -97,7 +97,7 @@ export const CHANNELS: Channel[] = [
     id: "linkedin-ads",
     name: "LinkedIn Ads",
     type: "digital",
-    iconKey: "Linkedin",
+    iconKey: "Briefcase",
     allocation: 4500,
     spend: 3150,
     reach: 42000,
@@ -231,7 +231,7 @@ export const CHANNEL_LIBRARY: ChannelLibraryItem[] = [
     id: "linkedin-ads",
     name: "LinkedIn Ads",
     type: "digital",
-    iconKey: "Linkedin",
+    iconKey: "Briefcase",
     blurb: "Reach senior titles by company size and seniority.",
   },
   {
@@ -252,7 +252,7 @@ export const CHANNEL_LIBRARY: ChannelLibraryItem[] = [
     id: "twitter-x",
     name: "X (Twitter)",
     type: "digital",
-    iconKey: "Twitter",
+    iconKey: "MessageSquare",
     blurb: "Founder reach when your team can sustain the posting cadence.",
   },
   {
@@ -287,14 +287,14 @@ export const CHANNEL_LIBRARY: ChannelLibraryItem[] = [
     id: "youtube-preroll",
     name: "YouTube Pre-Roll",
     type: "digital",
-    iconKey: "Youtube",
+    iconKey: "PlaySquare",
     blurb: "Skippable 6–15s spots; works for product demos with motion.",
   },
   {
     id: "affiliate",
     name: "Affiliate / Referral",
     type: "hybrid",
-    iconKey: "HandshakeIcon",
+    iconKey: "Handshake",
     blurb: "Pay only on conversion. Slow to spin up, durable once flowing.",
   },
   {
