@@ -27,7 +27,7 @@ const alerts = [
 ];
 
 const toneIcon: Record<"attention" | "critical", string> = {
-  attention: "#B45309",
+  attention: "var(--color-warning)",
   critical: "var(--color-negative)",
 };
 

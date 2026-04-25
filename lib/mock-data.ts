@@ -399,9 +399,19 @@ export const STATUS_LABEL: Record<ChannelStatus, string> = {
 };
 
 export const STATUS_COLOUR: Record<ChannelStatus, string> = {
-  healthy: "var(--color-accent)",
-  attention: "#B45309",
+  healthy: "var(--color-success)",
+  attention: "var(--color-warning)",
   critical: "var(--color-negative)",
+};
+
+// Channel-id -> series-token mapping. See DESIGN.md §1.1 Signal 5.
+// Stable colour identity that survives sorting / reordering.
+export const CHANNEL_SERIES: Record<string, string> = {
+  "linkedin-ads": "var(--color-series-1)",
+  "podcast-sponsorship": "var(--color-series-2)",
+  "google-search": "var(--color-series-3)",
+  "saastr-europa": "var(--color-series-4)",
+  "pr-placement": "var(--color-series-5)",
 };
 
 // Aggregated trend across all channels (used on the dashboard chart toggles).

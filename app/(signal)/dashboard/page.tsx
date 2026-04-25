@@ -156,7 +156,7 @@ function DashboardInner() {
               On track
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#B45309]" />
+              <span className="size-2 rounded-full bg-[var(--color-warning)]" />
               Attention
             </span>
             <span className="inline-flex items-center gap-1.5">

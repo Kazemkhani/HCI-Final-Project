@@ -342,7 +342,7 @@ function ScoreDial({ value }: { value: number }) {
     value < 40
       ? "var(--color-negative)"
       : value < 70
-        ? "#B45309"
+        ? "var(--color-warning)"
         : "var(--color-accent)";
   const r = 52;
   const c = 2 * Math.PI * r;

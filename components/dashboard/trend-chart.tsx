@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import { CHANNELS, combinedTrend } from "@/lib/mock-data";
+import { CHANNELS, CHANNEL_SERIES, combinedTrend } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 type Metric = "signups" | "spend" | "costPerSignup";
@@ -23,13 +23,7 @@ const metricLabels: Record<Metric, string> = {
   costPerSignup: "£ / signup",
 };
 
-const palette = [
-  "#0A0A0A",
-  "#6D28D9",
-  "#10B981",
-  "#4A4A4A",
-  "#B45309",
-];
+// Channel colour comes from CHANNEL_SERIES (id-mapped, see DESIGN.md §1.1).
 
 export function TrendChart() {
   const [metric, setMetric] = useState<Metric>("signups");
@@ -73,9 +67,11 @@ export function TrendChart() {
       </header>
 
       <div className="flex flex-wrap gap-x-5 gap-y-2 mb-4 text-[12px]">
-        {CHANNELS.map((c, i) => {
+        {CHANNELS.map((c) => {
           const colour =
-            hovered === c.id ? "var(--color-accent)" : palette[i];
+            hovered === c.id
+              ? "var(--color-accent)"
+              : CHANNEL_SERIES[c.id];
           return (
             <button
               key={c.id}
@@ -147,12 +143,16 @@ export function TrendChart() {
             <Tooltip
               content={(props) => <ChartTooltip {...props} metric={metric} />}
             />
-            {CHANNELS.map((c, i) => (
+            {CHANNELS.map((c) => (
               <Line
                 key={c.id}
                 dataKey={c.id}
                 type="monotone"
-                stroke={hovered === c.id ? "var(--color-accent)" : palette[i]}
+                stroke={
+                  hovered === c.id
+                    ? "var(--color-accent)"
+                    : CHANNEL_SERIES[c.id]
+                }
                 strokeWidth={hovered === c.id ? 2.2 : 1.4}
                 strokeOpacity={hovered && hovered !== c.id ? 0.25 : 1}
                 dot={false}
