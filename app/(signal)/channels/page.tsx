@@ -79,7 +79,7 @@ export default function ChannelMixPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 pb-24">
+    <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8 pb-32">
       <aside className="lg:sticky lg:top-8 self-start">
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-sm)]">
           <div className="flex items-center justify-between mb-4">
@@ -150,36 +150,44 @@ export default function ChannelMixPage() {
         </div>
       </section>
 
-      <div className="fixed bottom-6 right-6 z-30 lg:right-10">
-        <AnimatePresence mode="wait" initial={false}>
-          {launching ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              className="h-11 px-5 rounded-full bg-[var(--color-accent)] text-white text-[14px] font-medium shadow-[0_8px_28px_rgba(16,185,129,0.32)] inline-flex items-center gap-2"
-            >
-              <Check size={15} strokeWidth={2.4} aria-hidden />
-              Launched. Watching the numbers.
-            </motion.div>
-          ) : (
-            <motion.button
-              key="cta"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              type="button"
-              onClick={handleLaunch}
-              className="h-11 px-5 rounded-full bg-[var(--color-accent)] text-white text-[14px] font-semibold shadow-[0_8px_28px_rgba(16,185,129,0.28)] inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
-            >
-              Launch campaign
-              <ArrowRight size={15} strokeWidth={2.2} aria-hidden />
-            </motion.button>
-          )}
-        </AnimatePresence>
+      <div className="fixed bottom-0 inset-x-0 z-30 pointer-events-none">
+        <div className="bg-gradient-to-t from-[var(--color-bg)] via-[var(--color-bg)]/85 to-transparent h-24" />
+        <div className="bg-[var(--color-bg)] pb-5 pt-1 px-6 lg:px-8 lg:ml-64">
+          <div className="max-w-[1200px] mx-auto flex items-center justify-between gap-4 pointer-events-auto">
+            <p className="hidden sm:block text-[13px] text-[var(--color-ink-2)] max-w-md">
+              Happy with the mix? You can still adjust later.
+            </p>
+            <AnimatePresence mode="wait" initial={false}>
+              {launching ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.94 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                  className="ml-auto h-11 px-5 rounded-full bg-[var(--color-accent)] text-white text-[14px] font-medium shadow-[0_8px_28px_rgba(16,185,129,0.32)] inline-flex items-center gap-2"
+                >
+                  <Check size={15} strokeWidth={2.4} aria-hidden />
+                  Launched. Watching the numbers.
+                </motion.div>
+              ) : (
+                <motion.button
+                  key="cta"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  type="button"
+                  onClick={handleLaunch}
+                  className="ml-auto h-11 px-5 rounded-full bg-[var(--color-accent)] text-white text-[14px] font-semibold shadow-[0_8px_28px_rgba(16,185,129,0.28)] inline-flex items-center gap-2 hover:translate-y-[-1px] transition-transform"
+                >
+                  Launch campaign
+                  <ArrowRight size={15} strokeWidth={2.2} aria-hidden />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </div>
   );
