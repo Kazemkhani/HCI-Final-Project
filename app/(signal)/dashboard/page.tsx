@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   PoundSterling,
   Users2,
   ReceiptText,
   Target,
+  ArrowRight,
+  AlertCircle,
 } from "lucide-react";
 import { MetricTile } from "@/components/dashboard/metric-tile";
 import { Sparkline } from "@/components/dashboard/sparkline";
@@ -26,8 +30,21 @@ const RANGES: { id: Range; label: string }[] = [
 ];
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardInner />
+    </Suspense>
+  );
+}
+
+function DashboardInner() {
+  const params = useSearchParams();
+  const demo = params.get("demo");
   const [range, setRange] = useState<Range>("30d");
   const { campaign, monthlyBudget, user, channels } = WORKSPACE;
+
+  if (demo === "empty") return <EmptyDashboard />;
+  if (demo === "error") return <ErrorDashboard />;
 
   const signupSpark = channels[1].trend
     .slice(-14)
@@ -154,6 +171,46 @@ export default function DashboardPage() {
       <DashboardAlerts />
 
       <TrendChart />
+    </div>
+  );
+}
+
+function EmptyDashboard() {
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
+      <h1 className="font-display text-[40px] text-[var(--color-ink-1)]">
+        Nothing running yet.
+      </h1>
+      <p className="mt-2 text-[15px] text-[var(--color-ink-2)] max-w-sm">
+        Start with a brief. We&apos;ll build the channel mix, then this page
+        comes to life.
+      </p>
+      <Link
+        href="/brief"
+        className="mt-6 inline-flex items-center gap-1.5 h-10 px-4 rounded-md bg-[var(--color-ink-1)] text-[var(--color-bg)] text-[14px] font-medium"
+      >
+        Start with a brief <ArrowRight size={14} aria-hidden />
+      </Link>
+      <div className="mt-12 w-full max-w-3xl grid grid-cols-2 sm:grid-cols-4 gap-4 opacity-50 pointer-events-none">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-24 rounded-xl border border-dashed border-[var(--color-border)]" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorDashboard() {
+  return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
+      <AlertCircle size={20} className="text-[var(--color-negative)] mb-3" aria-hidden />
+      <h1 className="font-display text-[28px] text-[var(--color-ink-1)]">
+        Can&apos;t read the numbers right now.
+      </h1>
+      <p className="mt-2 text-[14px] text-[var(--color-ink-2)] max-w-sm">
+        Refresh in a moment. If it keeps happening, we&apos;ll let you know in
+        the inbox.
+      </p>
     </div>
   );
 }

@@ -39,7 +39,7 @@ const DEFAULT: Omit<
   customAudience: "",
   goal: "signups",
   step: 1,
-  launched: false,
+  launched: true,
 };
 
 export const useBriefStore = create<BriefState>()(
@@ -62,6 +62,7 @@ export const useBriefStore = create<BriefState>()(
     }),
     {
       name: "signal-brief",
+      version: 2,
       storage: createJSONStorage(() => localStorage),
     },
   ),

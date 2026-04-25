@@ -119,10 +119,15 @@ export function TrendChart() {
               tickLine={false}
               axisLine={false}
               width={42}
+              allowDecimals={false}
               tickFormatter={(n: number) =>
-                metric === "spend" || metric === "costPerSignup"
-                  ? `£${n}`
-                  : `${n}`
+                metric === "spend"
+                  ? n >= 1000
+                    ? `£${(n / 1000).toFixed(1)}k`
+                    : `£${n}`
+                  : metric === "costPerSignup"
+                    ? `£${n}`
+                    : `${n}`
               }
             />
             <Tooltip

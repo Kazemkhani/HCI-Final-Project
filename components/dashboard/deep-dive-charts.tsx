@@ -30,13 +30,19 @@ export function DeepDiveCharts({ channel, targetCps }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] p-6">
-        <header className="mb-4">
-          <h2 className="font-display text-[20px] text-[var(--color-ink-1)]">
-            Daily cost per signup
-          </h2>
-          <p className="text-[13px] text-[var(--color-ink-2)]">
-            Threshold marks your campaign target of £{targetCps.toFixed(2)}.
-          </p>
+        <header className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-display text-[20px] text-[var(--color-ink-1)]">
+              Daily cost per signup
+            </h2>
+            <p className="text-[13px] text-[var(--color-ink-2)]">
+              Threshold marks your campaign target of £{targetCps.toFixed(2)}.
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.06em] text-[var(--color-ink-3)] shrink-0">
+            <span className="block h-px w-5 border-t border-dashed border-[var(--color-ink-3)]" aria-hidden />
+            Target
+          </span>
         </header>
         <div className="h-[240px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -93,12 +99,6 @@ export function DeepDiveCharts({ channel, targetCps }: Props) {
                 y={targetCps}
                 stroke="var(--color-ink-3)"
                 strokeDasharray="4 4"
-                label={{
-                  value: "target",
-                  position: "right",
-                  fontSize: 10,
-                  fill: "var(--color-ink-3)",
-                }}
               />
               <Area
                 type="monotone"

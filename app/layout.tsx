@@ -21,6 +21,12 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-ink-1)]">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-md focus:bg-[var(--color-ink-1)] focus:text-[var(--color-bg)] text-[13px] font-medium"
+        >
+          Skip to content
+        </a>
         {children}
       </body>
     </html>
